@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
@@ -22,8 +25,7 @@ app.use(cors());
 app.use("/poll", pollRoutes);
 app.use("/option", optionRoutes);
 
-const CONNECTION_URL =
-  "mongodb+srv://danil:D4757haha@cluster0.rio3m.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const CONNECTION_URL = process.env.DB_CONN;
 const PORT = process.env.PORT || 3000;
 
 mongoose
