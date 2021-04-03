@@ -17,7 +17,7 @@ import PollGraph from "../Components/PollGraph/PollGraph.jsx";
 import VoteGrid from "../Components/Vote/VoteGrid.jsx";
 import { io } from "socket.io-client";
 
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = "https://create-a-poll-server.herokuapp.com/";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {

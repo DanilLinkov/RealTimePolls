@@ -42,7 +42,7 @@ const HomeRoute = (props) => {
     PollService.getPolls().then((response) => {
       setPolls(response);
     });
-  });
+  }, []);
 
   const onSearchSubmit = () => {
     PollService.getPollById(useSearch)
