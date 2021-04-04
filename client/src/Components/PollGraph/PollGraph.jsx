@@ -17,7 +17,7 @@ const PollGraph = (props) => {
 
   React.useEffect(() => {
     !noVotes && buildChart();
-  }, [data]);
+  }, [data, noVotes]);
 
   const buildChart = () => {
     const myChartRef = chartRef.current.getContext("2d");
@@ -75,8 +75,8 @@ const PollGraph = (props) => {
         legend: {
           display: display,
           onClick: () => {},
-          position: "right",
-          align: "start",
+          position: "bottom",
+          align: "center",
           labels: {
             boxWidth: smallVersion ? 35 : 50,
             fontSize: smallVersion ? 13 : 20,

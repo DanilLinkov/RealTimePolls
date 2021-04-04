@@ -7,17 +7,15 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const themeLight = createMuiTheme({
   palette: {
     background: {
-      default: "#28527a",
+      default: "#5eaaa8",
     },
   },
 });
 
 ReactDOM.render(
-  <React.StrictMode>
-    <MuiThemeProvider theme={themeLight}>
-      <CssBaseline />
-      <App />
-    </MuiThemeProvider>
-  </React.StrictMode>,
+  <MuiThemeProvider theme={themeLight}>
+    <CssBaseline />
+    <App />
+  </MuiThemeProvider>,
   document.getElementById("root")
 );

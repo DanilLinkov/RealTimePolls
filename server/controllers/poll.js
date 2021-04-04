@@ -17,11 +17,12 @@ export const getPolls = async (req, res) => {
 };
 
 export const createPoll = async (req, res) => {
-  const { title, description, options } = req.body;
+  const { title, isPublic, description, options } = req.body;
 
   const newPoll = new Poll({
     title,
     description,
+    isPublic,
   });
 
   if (!options || options.size <= 0) {
@@ -72,34 +73,5 @@ export const deletePoll = async (req, res) => {
 
   res.json({ message: "The poll has been deleted successfully." });
 };
-
-// export const updatePoll = async (req, res) => {
-//   const { id } = req.params;
-//   const { title, description, options, locked } = req.body;
-
-//   if (!mongoose.Types.ObjectId.isValid(id)) {
-//     return res.status(404).send(`No poll with id: ${id}`);
-//   }
-
-//   const poll = await (await Poll.findById(id)).populated("options");
-
-//   for (let i = 0; i < options.size; i++) {
-//     const newOption = new Option({
-//       pollId: newPoll.id,
-//       name: options[i].name,
-//       numberOfVotes: 0,
-//     });
-
-//     await newOption.save();
-
-//     newPoll.options.push(newOption);
-//   }
-
-// //   const updatePoll = { title, description, options, locked };
-
-// //   await Poll.findByIdAndUpdate(id, updatePoll);
-
-//   res.json(updatePoll);
-// };
 
 export default router;

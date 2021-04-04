@@ -1,9 +1,8 @@
 import {
-  Button,
   Card,
   CardActionArea,
-  CardActions,
   CardContent,
+  Container,
   Grid,
   makeStyles,
   Typography,
@@ -11,7 +10,7 @@ import {
 import React from "react";
 import { useHistory } from "react-router-dom";
 import PollGraph from "../PollGraph/PollGraph";
-import PollGrid from "./PollGrid";
+import Moment from "react-moment";
 
 const useStyles = makeStyles({});
 
@@ -21,17 +20,36 @@ const PollCard = (props) => {
   const classes = useStyles();
 
   return (
-    <Grid item xs={6}>
-      <Card style={{ backgroundColor: "#fbeeac" }}>
+    <Grid item xs={6} style={{ height: "20em" }}>
+      <Card style={{ backgroundColor: "#fbeeac", height: "100%" }}>
         <CardActionArea
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
           onClick={() => {
             history.push("/poll/" + poll._id);
           }}
         >
-          <CardContent>
-            <Typography color="textPrimary" variant="h5">
-              {poll.title}
-            </Typography>
+          <CardContent style={{ width: "100%" }}>
+            <Container
+              disableGutters={true}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "1em",
+              }}
+            >
+              <Typography color="textPrimary" variant="h5">
+                {poll.title}
+              </Typography>
+              <Moment fromNow style={{ fontSize: 15 }}>
+                {poll.dateCreated}
+              </Moment>
+            </Container>
             <PollGraph usePoll={poll} display={true} smallVersion={true} />
           </CardContent>
         </CardActionArea>

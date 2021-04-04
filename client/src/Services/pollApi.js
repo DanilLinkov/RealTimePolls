@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://create-a-poll-server.herokuapp.com/poll";
+const API_URL = "http://localhost:3000/poll";
 
 class PollService {
   getPollById(id) {
@@ -15,11 +15,12 @@ class PollService {
     });
   }
 
-  createPoll(title, description, options) {
+  createPoll(title, description, options, isPublic) {
     return axios.post(API_URL, {
       title,
       description,
       options,
+      isPublic,
     });
   }
 

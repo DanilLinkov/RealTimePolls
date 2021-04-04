@@ -10,6 +10,10 @@ const pollSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
   options: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,9 +21,9 @@ const pollSchema = new mongoose.Schema({
       required: true,
     },
   ],
-  locked: {
+  isPublic: {
     type: Boolean,
-    default: false,
+    default: true,
     required: false,
   },
 });

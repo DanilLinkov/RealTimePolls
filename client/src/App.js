@@ -12,13 +12,6 @@ function App() {
           exact
           strict={false}
           sensitive={false}
-          path="/"
-          render={(props) => <HomeRoute {...props} />}
-        />
-        <Route
-          exact
-          strict={false}
-          sensitive={false}
           path="/createapoll"
           render={(props) => <CreateAPoll {...props} />}
         />
@@ -28,6 +21,12 @@ function App() {
           sensitive={false}
           path="/poll/:id"
           render={(props) => <PollRoute {...props} />}
+        />
+        <Route
+          strict={false}
+          sensitive={false}
+          path="/"
+          render={(props) => <HomeRoute {...props} />}
         />
       </Switch>
     </Router>

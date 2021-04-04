@@ -1,11 +1,18 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Button, Container, TextField, Typography } from "@material-ui/core";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import {
+  Button,
+  CircularProgress,
+  Container,
+  TextField,
+  Typography,
+  Checkbox,
+} from "@material-ui/core";
 import PollService from "../Services/pollApi.js";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
-    backgroundColor: "#8ac4d0",
+    backgroundColor: "#eac8af",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -43,22 +50,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const BlueCheckBox = withStyles({
+  root: {
+    color: "#28527a",
+    "&$checked": {
+      color: "#28527a",
+    },
+  },
+  checked: {},
+})((props) => <Checkbox color="default" {...props} />);
+
 const CreateAPoll = (props) => {
   const classes = useStyles();
 
   const [useTitle, setTitle] = React.useState("");
   const [useDesc, setDesc] = React.useState("");
   const [useOptions, setOptions] = React.useState(["", ""]);
+  const [useIsPublic, setIsPublic] = React.useState(true);
 
   const [useTitleError, setTitleError] = React.useState(false);
   const [useOptionsError, setOptionsError] = React.useState(false);
 
+  const [useLoading, setLoading] = React.useState(false);
+
   const onSubmit = () => {
+    setLoading(true);
     const cleanOptions = getCleanOptions();
 
     if (checkInput(cleanOptions) === true) {
-      PollService.createPoll(useTitle, useDesc, cleanOptions).then(
-        (response) => {
+      PollService.createPoll(useTitle, useDesc, cleanOptions, useIsPublic)
+        .then((response) => {
+          setLoading(false);
           const id = response.data._id;
           const creatorOfPolls = JSON.parse(localStorage.getItem("created"));
 
@@ -70,8 +92,12 @@ const CreateAPoll = (props) => {
           }
 
           props.history.push("/poll/" + id);
-        }
-      );
+        })
+        .catch((e) => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   };
 
@@ -145,12 +171,14 @@ const CreateAPoll = (props) => {
         />
         <Button
           style={{
-            padding: "1.1em",
+            padding: "1.11em",
             width: "18%",
             backgroundColor: "#c64756",
+            marginLeft: "0.1em",
           }}
           variant="contained"
           onClick={() => removeOption(optionNum)}
+          disabled={useOptions.length < 3}
         >
           Remove
         </Button>
@@ -222,6 +250,37 @@ const CreateAPoll = (props) => {
         <Typography style={{ margin: "1em" }} variant="h6">
           ━━OPTIONS━━
         </Typography>
+        <Container
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            width: "100%",
+            marginBottom: "1em",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6" style={{ fontSize: "1.2em" }}>
+              Make public?
+            </Typography>
+            <BlueCheckBox
+              checked={useIsPublic}
+              onChange={() => setIsPublic(!useIsPublic)}
+              name="checkedB"
+              color="primary"
+            />
+          </div>
+          <Typography>(public polls will show up on the home page)</Typography>
+        </Container>
         {useOptions.map((option, index) => renderOption(option, index))}
         {useOptionsError && (
           <Typography
@@ -241,40 +300,45 @@ const CreateAPoll = (props) => {
           style={{
             height: "3em",
             width: "100%",
-            backgroundColor: "#f4d160",
+            backgroundColor: "#fbeeac",
             marginTop: "0.5em",
           }}
           variant="contained"
           onClick={() => addOption()}
+          disabled={useOptions.length > 9}
         >
           Add option
         </Button>
       </Container>
-      <Container className={classes.buttonContainer}>
-        <Button
-          style={{
-            height: "10%",
-            width: "30.7%",
-            backgroundColor: "#5eaaa8",
-          }}
-          variant="contained"
-          onClick={() => onSubmit()}
-        >
-          Confirm
-        </Button>
-        <Button
-          style={{
-            marginLeft: "1em",
-            height: "10%",
-            width: "30.7%",
-            backgroundColor: "#c64756",
-          }}
-          variant="contained"
-          onClick={() => props.history.goBack()}
-        >
-          Cancel
-        </Button>
-      </Container>
+      {useLoading ? (
+        <CircularProgress style={{ marginTop: "3em" }} />
+      ) : (
+        <Container className={classes.buttonContainer}>
+          <Button
+            style={{
+              height: "10%",
+              width: "30.7%",
+              backgroundColor: "#5eaaa8",
+            }}
+            variant="contained"
+            onClick={() => onSubmit()}
+          >
+            Confirm
+          </Button>
+          <Button
+            style={{
+              marginLeft: "1em",
+              height: "10%",
+              width: "30.7%",
+              backgroundColor: "#c64756",
+            }}
+            variant="contained"
+            onClick={() => props.history.goBack()}
+          >
+            Cancel
+          </Button>
+        </Container>
+      )}
     </Container>
   );
 };

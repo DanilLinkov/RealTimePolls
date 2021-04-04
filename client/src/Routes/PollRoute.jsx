@@ -9,25 +9,27 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
   Typography,
+  Popover,
+  Box,
 } from "@material-ui/core";
 import PollService from "../Services/pollApi.js";
 import PollGraph from "../Components/PollGraph/PollGraph.jsx";
 import VoteGrid from "../Components/Vote/VoteGrid.jsx";
 import { io } from "socket.io-client";
+import Moment from "react-moment";
+import PopupState, { bindTrigger, bindPopover } from "material-ui-popup-state";
 
-const ENDPOINT = "https://create-a-poll-server.herokuapp.com/";
+const ENDPOINT = "http://localhost:3000/";
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
-    backgroundColor: "#8ac4d0",
+    backgroundColor: "#eac8af",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
     marginTop: "1%",
-    marginTop: "5%",
     paddingTop: "2em",
     paddingBottom: "10em",
     borderRadius: "5em",
@@ -61,6 +63,8 @@ const PollRoute = (props) => {
   const [usePoll, setPoll] = React.useState();
   const [useSelected, setSelected] = React.useState(0);
 
+  const [useDeleteLoading, setDeleteLoading] = React.useState(false);
+
   const creatorOfPolls = JSON.parse(localStorage.getItem("created"));
   const votedOnPolls = JSON.parse(localStorage.getItem("votedOn"));
 
@@ -93,7 +97,7 @@ const PollRoute = (props) => {
       .catch((e) => {
         props.history.push("/");
       });
-  }, []);
+  }, [id, props.history]);
 
   React.useEffect(() => {
     if (usePoll) {
@@ -134,24 +138,48 @@ const PollRoute = (props) => {
       {usePoll !== undefined ? (
         <React.Fragment>
           <Container className={classes.titleContainer} maxWidth="md">
-            <Button
-              style={{
-                backgroundColor: "#f4d160",
-              }}
-              variant="contained"
-              onClick={() => props.history.push("/")}
-            >
-              Go back
-            </Button>
+            <div>
+              <Button
+                style={{
+                  backgroundColor: "#fbeeac",
+                  marginRight: hasCreated && "0.5em",
+                }}
+                variant="contained"
+                onClick={() => props.history.push("/")}
+              >
+                Go back
+              </Button>
+            </div>
             <Typography
               style={{
                 color: "#28527a",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+                marginLeft: hasCreated ? "11%" : "1.5%",
               }}
               variant="h3"
             >
               {usePoll.title}
+              <Moment
+                fromNow
+                style={{
+                  fontSize: 15,
+                  marginRight: "0.5em",
+                }}
+              >
+                {usePoll.dateCreated}
+              </Moment>
             </Typography>
-            <div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {hasCreated && (
                 <Button
                   style={{
@@ -164,19 +192,52 @@ const PollRoute = (props) => {
                   Delete
                 </Button>
               )}
-              <Button
-                style={{
-                  backgroundColor: "#f4d160",
-                }}
-                variant="contained"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `http://localhost:3001/poll/${id}`
-                  );
-                }}
-              >
-                Copy link
-              </Button>
+              <PopupState variant="popover">
+                {(popupState) => (
+                  <div
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `http://localhost:3001/poll/${id}`
+                      );
+                    }}
+                  >
+                    <Button
+                      style={{
+                        backgroundColor: "#fbeeac",
+                      }}
+                      variant="contained"
+                      {...bindTrigger(popupState)}
+                    >
+                      Copy link
+                    </Button>
+                    <Popover
+                      {...bindPopover(popupState)}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "center",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                      }}
+                      style={{ marginTop: "0.5em" }}
+                    >
+                      <Box
+                        p={2}
+                        style={{
+                          backgroundColor: "#28527a",
+                        }}
+                      >
+                        <Typography
+                          style={{ color: "#8ac4d0", fontSize: "1.1em" }}
+                        >
+                          Link coppied!
+                        </Typography>
+                      </Box>
+                    </Popover>
+                  </div>
+                )}
+              </PopupState>
             </div>
           </Container>
           <Container className={classes.graphContainer}>
@@ -191,7 +252,7 @@ const PollRoute = (props) => {
                 style={{
                   color: "#28527a",
                   padding: "0.5em",
-                  marginLeft: "1.1em",
+                  marginLeft: "0.5em",
                   fontSize: 20,
                   flexWrap: "wrap",
                   alignSelf: "flex-start",
@@ -204,7 +265,9 @@ const PollRoute = (props) => {
                   borderRadius: "0.5em",
                   backgroundColor: "#28527a",
                   marginBottom: "2em",
+                  width: "96%",
                 }}
+                disableGutters={true}
               >
                 <Typography
                   variant="body1"
@@ -226,13 +289,25 @@ const PollRoute = (props) => {
               style={{
                 color: "#28527a",
                 padding: "0.5em",
-                borderRadius: "0.5em",
               }}
             >
               Already Voted
             </Typography>
           ) : (
             <React.Fragment>
+              <Typography
+                variant="h6"
+                style={{
+                  color: "#28527a",
+                  padding: "0.5em",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: "1.7em",
+                  marginBottom: "1em",
+                }}
+              >
+                Select one of the options below and click vote to cast your vote
+              </Typography>
               <VoteGrid
                 labels={usePoll.options.map((option) => option.name)}
                 useSelected={useSelected}
@@ -243,7 +318,7 @@ const PollRoute = (props) => {
                   marginLeft: "1em",
                   height: "10%",
                   width: "30%",
-                  backgroundColor: "#f4d160",
+                  backgroundColor: "#fbeeac",
                 }}
                 variant="contained"
                 onClick={() => onVote()}
@@ -270,39 +345,59 @@ const PollRoute = (props) => {
                   carefully.
                 </DialogContentText>
               </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={handleClose}
-                  autoFocus
+              {useDeleteLoading ? (
+                <div
                   style={{
-                    backgroundColor: "#c64756",
-                    marginRight: "0.5em",
-                  }}
-                  variant="contained"
-                  onClick={() => {
-                    PollService.deletePoll(id);
-                    props.history.push("/");
+                    marginBottom: "1em",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  Delete
-                </Button>
-                <Button
-                  autoFocus
-                  onClick={handleClose}
-                  style={{
-                    backgroundColor: "#f4d160",
-                    marginRight: "0.5em",
-                  }}
-                  variant="contained"
-                >
-                  Cancel
-                </Button>
-              </DialogActions>
+                  <CircularProgress />
+                </div>
+              ) : (
+                <DialogActions>
+                  <Button
+                    autoFocus
+                    style={{
+                      backgroundColor: "#c64756",
+                      marginRight: "0.5em",
+                    }}
+                    variant="contained"
+                    onClick={() => {
+                      handleClose();
+                      setDeleteLoading(true);
+                      PollService.deletePoll(id)
+                        .then((response) => {
+                          setDeleteLoading(false);
+                          props.history.push("/");
+                        })
+                        .catch((e) => {
+                          setDeleteLoading(false);
+                        });
+                    }}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    autoFocus
+                    onClick={handleClose}
+                    style={{
+                      backgroundColor: "#f4d160",
+                      marginRight: "0.5em",
+                    }}
+                    variant="contained"
+                  >
+                    Cancel
+                  </Button>
+                </DialogActions>
+              )}
             </Container>
           </Dialog>
         </React.Fragment>
       ) : (
-        <CircularProgress />
+        <CircularProgress style={{ marginTop: "10%" }} />
       )}
     </Container>
   );
